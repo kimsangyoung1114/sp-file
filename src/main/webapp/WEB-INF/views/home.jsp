@@ -12,10 +12,22 @@
 <P>  The time on the server is ${serverTime}. </P>
 
 	<input type="file" name="file1" id="file1">
-	<input type="text" name="writer" id="writer">
-	<button onclick="upload()">전송</button>
-
+	소환사 이름 : <input type="text" name="writer" id="writer">
+	<button onclick="upload2()">전송</button>
+<div id="rDiv"></div>
 <script>
+function upload2(){
+	
+	$.ajax({
+	url:'/riot/' + document.querySelector('#writer').valued
+	success:function(res){
+		$('#rDiv').html(JSON.stringify(res));
+	},
+	error:function(err){
+		
+	}
+})
+}
 function upload(){
 	var data = new FormData();
 	data.append('file1',document.querySelector('#file1').files[0]);
