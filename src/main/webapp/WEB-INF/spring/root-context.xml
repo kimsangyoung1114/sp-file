@@ -2,8 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
@@ -11,5 +13,30 @@
 		<property name="maxUploadSize" value="5242880"></property>
 		<property name="maxUploadSizePerFile" value="10242880"></property>
 	</bean>	
+	<bean id="bds" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521/xe"/>
+		<property name="username" value="test"/>
+		<property name="password" value="test"/>
+	</bean>
+	
+	<bean id="logBds" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="bds"></constructor-arg>
+	</bean>
+	
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="logBds"/>
+		<property name="configLocation" value="classpath:mybatis-config.xml"/>
+		<property name="mapperLocations" value="classpath:mapper/*.xml"/>
+	</bean>
+	
+	<bean id="tm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	  <constructor-arg ref="logBds" />
+	</bean>
+	<tx:annotation-driven transaction-manager="tm" proxy-target-class="true"/>
 	<context:component-scan base-package="com.file.sp.service" />
+	<context:component-scan base-package="com.file.sp.dao" />
 </beans>
+
+
+
